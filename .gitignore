@@ -2,6 +2,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/node,visualstudiocode,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,visualstudiocode,react
 
+### Self defines ###
+config/default.json
+
 ### Node ###
 # Logs
 logs
