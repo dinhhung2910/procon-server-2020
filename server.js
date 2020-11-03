@@ -40,7 +40,9 @@ app.use(function(req, res, next) {
 
 // API ROUTES DEFINE HERE
 // app.use('/api/users', require('./routes/api/user'));
-
+app.use('/api/admin/matches', require('./route/api/admin/matches'));
+app.use('/api/admin/teams', require('./route/api/admin/teams'));
+app.use('/api/admin/auth', require('./route/api/admin/auth'));
 
 // UPLOADED MEDIA
 app.get('/media/image/:filename', (req, res) => {
