@@ -4,6 +4,7 @@
 
 ### Self defines ###
 config/default.json
+python/map/*
 
 ### Node ###
 # Logs

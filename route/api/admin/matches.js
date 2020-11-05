@@ -1,93 +1,24 @@
 const express = require('express');
+const adminauth = require('../../../middleware/adminauth');
 const router = express.Router();
+const logger = require('../../../logger/winston');
+const {generateMap} = require('../../../utils/generateMap');
 
 /**
- * @route POST /matches c
+ * @route POST /api/admin/matches
  * @desc Create random map with 2 team
  * @access authenticated
  */
-router.put('/', [], async (req, res) => {
+router.post('/', [adminauth], async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
     const {
-      fullname,
-      avatar,
-      description,
-      hobbies,
-      birthDate,
-      phoneNumber,
-      countryCode,
-      address,
+      width,
+      height,
     } = req.body;
 
-    if (fullname && fullname.trim()) user.fullname = fullname.trim();
-    if (avatar) {
-      try {
-        const imagePath = SaveImage.SaveImage(avatar);
-        user.avatar = imagePath;
-      } catch (e) {
-        res.status(400).json({
-          errors: [
-            {
-              msg: 'Invalid image',
-              param: 'avatar',
-            },
-          ],
-        });
-      }
-    }
-    if (description) user.description = description;
-    if (hobbies) user.hobbies = hobbies;
-    user.information = user.information || {};
+    const resT = await generateMap(width, height);
 
-    if (birthDate) {
-      user.information.birthDate = birthDate;
-    }
-    // phone number and country code go together
-    if (phoneNumber && countryCode) {
-      user.information.phoneNumber = phoneNumber;
-      user.information.countryCode = countryCode;
-    }
-
-    if (address) {
-      user.information.address = address;
-    }
-
-    await user.save();
-    // update mapping comments
-    Comment.find({userId: user._id})
-      .then((comments) => {
-        comments.forEach(async (comment) => {
-          comment.fullname = user.fullname;
-          comment.avatar = user.avatar;
-          try {
-            await comment.save();
-          } catch (e) {
-            console.error(e);
-          }
-        });
-      })
-      .catch();
-
-    // populate Follower
-    Follower.find({userId: user._id}).then((followers) => {
-      followers.forEach(async (follower) => {
-        follower.user = {
-          fullname: user.fullname,
-          avatar: user.avatar,
-          username: user.username,
-        };
-
-        try {
-          await follower.save();
-        } catch (e) {
-          loggers.error(e);
-        }
-      });
-    });
-
-    user.password = null;
-    res.json(user);
+    res.json(resT);
   } catch (e) {
     logger.error(e);
     res.status(500).send('Server error');

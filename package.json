@@ -22,6 +22,7 @@
   "homepage": "https://github.com/dinhhung2910/procon-server-2020#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "child_process": "^1.0.2",
     "config": "^3.3.2",
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
