@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
+const action = require('./action');
 const Treasure = require('./treasure').schema;
 const Coordinate = require('./coordinate').schema;
 const Agent = require('./agent').schema;
+const Action = require('./action').schema;
 
 const MatchSchema = new mongoose.Schema({
   code: {
@@ -46,6 +48,11 @@ const MatchSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
+  maxTurn: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   teams: [{
     teamID: {
       type: Number,
@@ -67,6 +74,16 @@ const MatchSchema = new mongoose.Schema({
   tiled: [[Number]],
   obstacles: [Coordinate],
   treasure: [Treasure],
+  stagingMoves: [
+    {
+      teamID: {
+        type: Number,
+        required: true,
+      },
+      agents: [Agent],
+    },
+  ],
+  actions: [Action],
 });
 
 module.exports = Match = mongoose.model('match', MatchSchema);

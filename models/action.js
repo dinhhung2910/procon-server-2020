@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const {
   ActionType,
   HorizontialMoveType,
+  VerticalMoveType,
   ActionStatus,
 } = require('../utils/constants');
 

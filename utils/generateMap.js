@@ -1,6 +1,9 @@
 const {v4} = require('uuid');
 const path = require('path');
 const fs = require('fs');
+const Agent = require('../models/agent');
+const Treasure = require('../models/treasure');
+const Coordinate = require('../models/coordinate');
 
 /**
  * @desc Generate random input map
@@ -29,7 +32,7 @@ const generateFile = (width, height) => {
         ]);
 
       pyProg.on('exit', (code, signal) => {
-        console.log(code, signal);
+        // console.log(code, signal);
         resolve(filepath);
       });
     } catch (e) {
@@ -75,6 +78,58 @@ const parseInputFile = (filepath) => {
         result.turns = parseInt(buffer[r++]);
         result.agentsNum = parseInt(buffer[r++]);
 
+        result.teamA = {agents: []};
+        result.teamB = {agents: []};
+
+        // read agent start position
+        for (let i = 0; i < result.agentsNum; i++) {
+          const agent = new Agent();
+          const line = buffer[r++].split(' ');
+          agent.agentID = i + 1;
+          agent.x = line[0];
+          agent.y = line[1];
+          agent.tileScore = 0;
+
+          result.teamA.agents.push(agent);
+        }
+
+        // read agent start position
+        for (let i = 0; i < result.agentsNum; i++) {
+          const agent = new Agent();
+          const line = buffer[r++].split(' ');
+          agent.agentID = i + 1 + result.agentsNum;
+          agent.x = line[0];
+          agent.y = line[1];
+          agent.tileScore = 0;
+
+          result.teamB.agents.push(agent);
+        }
+
+        // read treasure
+        result.treasureNum = parseInt(buffer[r++]);
+        result.treasures = [];
+        for (let i = 0; i < result.treasureNum; i++) {
+          const line = buffer[r++].split(' ').map((num) => parseInt(num));
+          const treasure = new Treasure();
+          treasure.status = 0;
+          treasure.x = line[0];
+          treasure.y = line[1];
+          treasure.point = line[2];
+
+          result.treasures.push(treasure);
+        }
+
+        // read wall
+        result.wallNum = parseInt(buffer[r++]);
+        result.walls = [];
+        for (let i = 0; i < result.wallNum; i++) {
+          const line = buffer[r++].split(' ').map((num) => parseInt(num));
+          const coordinate = new Coordinate();
+          coordinate.x = line[0];
+          coordinate.y = line[1];
+          result.walls.push(coordinate);
+        }
+
         resolve(result);
       });
     } catch (e) {
@@ -83,6 +138,12 @@ const parseInputFile = (filepath) => {
   });
 };
 
+/**
+ *
+ * @param {Number} width
+ * @param {Number} height
+ * @return {Field} play field
+ */
 const generateMap = async (width, height) => {
   const filepath = await generateFile(width, height);
   const result = await parseInputFile(filepath);
