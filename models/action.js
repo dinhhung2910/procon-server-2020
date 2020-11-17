@@ -14,26 +14,25 @@ const ActionSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: Object.keys(ActionType),
+    enum: Object.values(ActionType),
   },
   dx: {
     type: Number,
     required: true,
-    enum: Object.keys(HorizontialMoveType),
+    enum: Object.values(HorizontialMoveType),
   },
   dy: {
     type: Number,
     required: true,
-    enum: Object.keys(VerticalMoveType),
+    enum: Object.values(VerticalMoveType),
   },
   turn: {
     type: Number,
-    required: true,
   },
   apply: {
     type: Number,
-    required: true,
-    enum: Object.keys(ActionStatus),
+    default: ActionStatus.VALID,
+    enum: Object.values(ActionStatus),
   },
 });
 

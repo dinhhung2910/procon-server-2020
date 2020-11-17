@@ -43,6 +43,16 @@ const MatchSchema = new mongoose.Schema({
     required: true,
     default: new Date(),
   },
+  intervalMillis: {
+    type: Number,
+    required: true,
+    default: 15000,
+  },
+  turnMillis: {
+    type: Number,
+    required: true,
+    default: 15000,
+  },
   turn: {
     type: Number,
     required: true,
@@ -80,7 +90,7 @@ const MatchSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
-      agents: [Agent],
+      agents: [Action],
     },
   ],
   actions: [Action],

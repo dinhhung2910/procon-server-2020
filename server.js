@@ -44,6 +44,9 @@ app.use('/api/admin/matches', require('./route/api/admin/matches'));
 app.use('/api/admin/teams', require('./route/api/admin/teams'));
 app.use('/api/admin/auth', require('./route/api/admin/auth'));
 
+// api for teams
+app.use('/matches', require('./route/api/team/matches'));
+
 // UPLOADED MEDIA
 app.get('/media/image/:filename', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'media', 'image', req.params.filename));
