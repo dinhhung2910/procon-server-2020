@@ -1,5 +1,5 @@
 const Match = require('../models/match');
-const {ActionStatus} = require('./constants');
+const {ActionStatus, ActionType} = require('./constants');
 /**
  * Get moves from staging area
  * Validate them
@@ -11,9 +11,11 @@ async function validateMoves(matchId) {
 
   // check border
   match.checkBorder();
-  console.log(match.stagingMoves.map((en) => en.agentsz));
 
   // check empty cell
+  match.checkEmptyCell();
+  console.log(match.stagingMoves.map((en) => en.agents));
+
   // check wall
   // check treasure
   // check conflict
@@ -23,10 +25,54 @@ async function validateMoves(matchId) {
 Match.prototype.checkBorder = function() {
   const [blueAgents, blueStagingAgents] = this.getAgents(this.blueTeamCode);
   const [redAgents, redStagingAgents] = this.getAgents(this.redTeamCode);
-  this.validateAgentsBorder(blueAgents, blueStagingAgents);
-  this.validateAgentsBorder(redAgents, redStagingAgents);
+  this.validateAgentsBorder(blueAgents, blueStagingAgents, this.blueTeamCode);
+  this.validateAgentsBorder(redAgents, redStagingAgents, this.redTeamCode);
 };
 
+/**
+ * Check if next cell is empty
+ * For MOVE type only
+ */
+Match.prototype.checkEmptyCell = function() {
+  const [blueAgents, blueStagingAgents] = this.getAgents(this.blueTeamCode);
+  const [redAgents, redStagingAgents] = this.getAgents(this.redTeamCode);
+  this.validateNextAvailableCell(blueAgents, blueStagingAgents);
+  this.validateNextAvailableCell(redAgents, redStagingAgents);
+};
+
+/**
+ *
+ * @param {Object} current
+ * @param {Object} staging
+ * @param {Number} teamID
+ */
+Match.prototype.validateNextAvailableCell = function(current, staging, teamID) {
+  current.forEach((agent) => {
+    const stagingAgent = staging.find((en) => en.agentID == agent.agentID);
+
+    // No update for this agent
+    if (!stagingAgent) {
+      return;
+    }
+    // No disabled
+    if (stagingAgent.apply == ActionStatus.DISABLED) {
+      return;
+    }
+    // Not type moving
+    if (stagingAgent.type != ActionType.MOVE) {
+      return;
+    }
+
+    const nextCoor = {
+      x: agent.x + stagingAgent.dx,
+      y: agent.y + stagingAgent.dy,
+    };
+    const tile = this.tiled[nextCoor.x][nextCoor.y];
+    if (tile != 0 && tile != teamID) {
+      stagingAgent.apply = ActionStatus.DISABLED;
+    }
+  });
+};
 
 /**
  * Get agents of team
