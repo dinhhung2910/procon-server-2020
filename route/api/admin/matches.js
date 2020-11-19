@@ -7,6 +7,44 @@ const Match = require('../../../models/match');
 const Team = require('../../../models/team');
 
 /**
+ * @route GET /api/admin/matches
+ * @desc Get basic information of all matches
+ * @access authenticated
+ */
+router.get('/', [adminauth], async (req, res) => {
+  try {
+    const matches = await Match.find();
+    res.json(matches);
+  } catch (e) {
+    console.error(e);
+    logger.error(e);
+    res.status(500).send('Server error');
+  }
+});
+
+/**
+ * @route GET /api/admin/matches/:code
+ * @desc Get information of a match
+ * @access authenticated
+ */
+router.get('/:code', [adminauth], async (req, res) => {
+  try {
+    const match = await Match.find({
+      code: req.params.code,
+    });
+    if (!match) {
+      res.status(404).send('Match not found');
+    } else {
+      res.json(match);
+    }
+  } catch (e) {
+    console.error(e);
+    logger.error(e);
+    res.status(500).send('Server error');
+  }
+});
+
+/**
  * @route POST /api/admin/matches
  * @desc Create random map with 2 team
  * @access authenticated
