@@ -32,6 +32,7 @@ function LoginForm() {
             <article className="card-body">
               <h4 className="card-title text-center mb-4 mt-1">Sign in</h4>
               <hr />
+
               <p className="text-danger text-center">
                 {auth.errors.join('\n')}
               </p>

@@ -1,10 +1,14 @@
 import React, {Fragment, useEffect} from 'react';
 import {Switch, Route, BrowserRouter as Router} from 'react-router-dom';
+import ReactHelmet from 'react-helmet';
 import {Counter} from './features/counter/Counter';
 import './styles/vendor.scss';
 import Login from './components/containers/login';
 import {loadUser} from './features/login/loginSlice';
 import {useDispatch} from 'react-redux';
+import Matches from './components/containers/matches';
+import NavigationBar from './components/navbar';
+import PrivatedRoute from './components/route/privatedRoute';
 
 function App() {
   const dispatch = useDispatch();
@@ -14,14 +18,29 @@ function App() {
 
   return (
     <Fragment>
+      <ReactHelmet>
+        <title>Procon 2020 | HUST</title>
+      </ReactHelmet>
       <Router>
         <Switch>
-          <Route path="/login" component={Login}></Route>
-          <Route path="/counter" component={Counter}></Route>
+          <Route path="/login" exact component={Login}></Route>
+          <Route path="/counter" exact component={Counter}></Route>
+          <PrivatedRoute path="*" component={DefaultComponent} />
         </Switch>
       </Router>
     </Fragment>
   );
 }
+
+const DefaultComponent = (props) => {
+  return (
+    <Fragment>
+      <NavigationBar />
+      <Switch>
+        <Route path="/matches" exact component={Matches}></Route>
+      </Switch>
+    </Fragment>
+  );
+};
 
 export default App;
