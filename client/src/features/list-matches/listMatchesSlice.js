@@ -39,6 +39,25 @@ export const loadAllMatches = () => async (dispatch) => {
   }
 };
 
+export const createMatch = (data) => async (dispatch) => {
+  if (localStorage.token) {
+    setAuthToken(localStorage.token);
+  }
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  const body = JSON.stringify(data);
+  try {
+    await axios.post('/api/admin/matches', body, config);
+    await dispatch(loadAllMatches());
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 export const selectListMatches = (state) => state.listMatches;
 
 export default listMatchesSlice.reducer;

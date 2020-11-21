@@ -15,7 +15,7 @@ router.get('/', [adminauth], async (req, res) => {
   try {
     const matches = await Match.find();
     matches.sort((a, b) => {
-      return (a.code - b.code);
+      return (b.code - a.code);
     });
     res.json(matches);
   } catch (e) {
@@ -60,6 +60,8 @@ router.post('/', [adminauth], async (req, res) => {
       startAt,
       redTeamCode,
       blueTeamCode,
+      intervalMillis,
+      turnMillis,
     } = req.body;
 
     const resT = await generateMap(width, height);
@@ -87,6 +89,8 @@ router.post('/', [adminauth], async (req, res) => {
     match.width = width;
     match.height = height;
     match.maxTurn = resT.turns;
+    match.turnMillis = turnMillis;
+    match.intervalMillis = intervalMillis;
 
     match.teams.push({
       teamID: redTeamCode,
