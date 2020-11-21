@@ -14,6 +14,9 @@ const Team = require('../../../models/team');
 router.get('/', [adminauth], async (req, res) => {
   try {
     const matches = await Match.find();
+    matches.sort((a, b) => {
+      return (a.code - b.code);
+    });
     res.json(matches);
   } catch (e) {
     console.error(e);

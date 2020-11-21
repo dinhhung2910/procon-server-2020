@@ -4,6 +4,7 @@ import {
   Nav,
 } from 'react-bootstrap';
 import {useDispatch} from 'react-redux';
+import {Link} from 'react-router-dom';
 import {logout} from '../features/login/loginSlice';
 
 function NavigationBar() {
@@ -11,7 +12,11 @@ function NavigationBar() {
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
-      <Navbar.Brand href="#home">Procon Admin</Navbar.Brand>
+      <Navbar.Brand>
+        <Link to="/" className="navbar-brand">
+        Procon Admin
+        </Link>
+      </Navbar.Brand>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
         <Nav className="mr-auto">
