@@ -1,24 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {Fragment, useEffect} from 'react';
+import {Switch, Route, BrowserRouter as Router} from 'react-router-dom';
+import {Counter} from './features/counter/Counter';
+import './styles/vendor.scss';
+import Login from './components/containers/login';
+import {loadUser} from './features/login/loginSlice';
+import {useDispatch} from 'react-redux';
 
 function App() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(loadUser());
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Fragment>
+      <Router>
+        <Switch>
+          <Route path="/login" component={Login}></Route>
+          <Route path="/counter" component={Counter}></Route>
+        </Switch>
+      </Router>
+    </Fragment>
   );
 }
 
