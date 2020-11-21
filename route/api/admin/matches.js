@@ -13,7 +13,16 @@ const Team = require('../../../models/team');
  */
 router.get('/', [adminauth], async (req, res) => {
   try {
-    const matches = await Match.find();
+    const matches = await Match.find().
+      select([
+        '-actions',
+        '-stagingMoves',
+        '-obstacles',
+        '-points',
+        '-teams',
+        '-tiled',
+        '-treasure',
+      ]);
     matches.sort((a, b) => {
       return (b.code - a.code);
     });
@@ -32,7 +41,7 @@ router.get('/', [adminauth], async (req, res) => {
  */
 router.get('/:code', [adminauth], async (req, res) => {
   try {
-    const match = await Match.find({
+    const match = await Match.findOne({
       code: req.params.code,
     });
     if (!match) {
