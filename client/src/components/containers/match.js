@@ -24,7 +24,12 @@ function Match(props) {
   }, []);
 
   useEffect(() => {
-    dispatch(loadMatchByCode(code));
+    if ( (match.code != code) ||
+      (match.detail &&
+      match.detail.status &&
+      match.detail.status.type !== 'ended')) {
+      dispatch(loadMatchByCode(code));
+    }
   }, [counter]);
 
   return (

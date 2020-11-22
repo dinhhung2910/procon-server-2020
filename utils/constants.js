@@ -22,9 +22,17 @@ const ActionStatus = {
   VALID: 1,
 };
 
+const MatchStatus = {
+  EARLY: 0,
+  TURN: 1,
+  INTERVAL: 2,
+  ENDED: 3,
+};
+
 module.exports = {
   ActionType,
   HorizontialMoveType,
   VerticalMoveType,
   ActionStatus,
+  MatchStatus,
 };
