@@ -5,6 +5,7 @@ const Match = require('../../../models/match');
 const Team = require('../../../models/team');
 const teamauth = require('../../../middleware/teamauth');
 const {validateMoves} = require('../../../utils/game');
+const {MatchStatus} = require('../../../utils/constants');
 
 /**
  * @route GET matches
@@ -107,7 +108,6 @@ router.get('/:code', [teamauth], async (req, res) => {
 router.post('/:code/action', [teamauth], async (req, res) => {
   try {
     const team = await Team.findById(req.user.id);
-    const timestamp = new Date();
 
     if (!team) {
       return res.status(401).send({
@@ -125,29 +125,16 @@ router.post('/:code/action', [teamauth], async (req, res) => {
     if (match.blueTeamCode != team.code && match.redTeamCode != team.code) {
       return res.status(400).send({status: 'InvalidMatches'});
     }
-    if (timestamp < match.startedAtUnixTime) {
+
+    const matchStatus = match.getCurrentStatus();
+
+    switch (matchStatus) {
+    case MatchStatus.EARLY:
       return res.status(400).send({status: 'TooEarly'});
-    }
-
-    // check unacceptable time
-    // after the match is over
-    // or not in update time
-    const maxTurn = match.maxTurn;
-    const intervalMillis = match.intervalMillis;
-    const turnMillis = match.turnMillis;
-
-    // TOO LATE!
-    // eslint-disable-next-line max-len
-    const endTime = match.startedAtUnixTime.getTime() + maxTurn * (intervalMillis + turnMillis);
-
-    if (timestamp > endTime) {
-      console.log('Too late,');
+    case MatchStatus.ENDED:
+      console.log('Too late!');
       return res.status(400).send({status: 'UnacceptableTime'});
-    }
-
-    // UPDATE IN INTERVAL TIME
-    // eslint-disable-next-line max-len
-    if ((timestamp - match.startedAtUnixTime) % (intervalMillis + turnMillis) > turnMillis) {
+    case MatchStatus.INTERVAL:
       console.log('In interval time');
       return res.status(400).send({status: 'UnacceptableTime'});
     }

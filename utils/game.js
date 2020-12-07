@@ -26,6 +26,35 @@ async function validateMoves(matchId) {
   // apply staging moves
 }
 
+const startGame = async (matchId) => {
+  const match = await Match.findById(matchId);
+  const current = new Date();
+  const timeout = match.startedAtUnixTime - current;
+
+  if (current < match.startedAtUnixTime) {
+    setTimeout(() => {
+      updateTurn(match._id);
+    }, timeout);
+  }
+};
+
+const updateTurn = async (matchId) => {
+  const match = await Match.findById(matchId);
+  const timeout = match.intervalMillis + match.turnMillis;
+
+  if (match.turn < match.maxTurn) {
+    Match.findByIdAndUpdate(
+      matchId,
+      {
+        $inc: {turn: 1},
+      },
+      (err, res) => {
+        console.log(err);
+        console.log(res.turn);
+      });
+    setTimeout(updateTurn, timeout, matchId);
+  }
+};
 
 Match.prototype.checkBorder = function() {
   const [blueAgents, blueStagingAgents] = this.getAgents(this.blueTeamCode);
@@ -230,4 +259,5 @@ Match.prototype.isInside = function(coor) {
 
 module.exports = {
   validateMoves,
+  startGame,
 };
