@@ -17,16 +17,21 @@ async function validateMoves(matchId) {
   console.log(match.stagingMoves.map((en) => en.agents));
 
   // check wall
-  // check treasure
+  match.checkWall();
+
   // check conflict
+  match.checkConflict();
+
+  // check treasure
+  // apply staging moves
 }
 
 
 Match.prototype.checkBorder = function() {
   const [blueAgents, blueStagingAgents] = this.getAgents(this.blueTeamCode);
   const [redAgents, redStagingAgents] = this.getAgents(this.redTeamCode);
-  this.validateAgentsBorder(blueAgents, blueStagingAgents, this.blueTeamCode);
-  this.validateAgentsBorder(redAgents, redStagingAgents, this.redTeamCode);
+  this.validateAgentsBorder(blueAgents, blueStagingAgents);
+  this.validateAgentsBorder(redAgents, redStagingAgents);
 };
 
 /**
@@ -36,8 +41,102 @@ Match.prototype.checkBorder = function() {
 Match.prototype.checkEmptyCell = function() {
   const [blueAgents, blueStagingAgents] = this.getAgents(this.blueTeamCode);
   const [redAgents, redStagingAgents] = this.getAgents(this.redTeamCode);
-  this.validateNextAvailableCell(blueAgents, blueStagingAgents);
-  this.validateNextAvailableCell(redAgents, redStagingAgents);
+  this.validateNextAvailableCell(
+    blueAgents,
+    blueStagingAgents,
+    this.blueTeamCode);
+  this.validateNextAvailableCell(
+    redAgents,
+    redStagingAgents,
+    this.redTeamCode);
+};
+
+Match.prototype.checkWall = function() {
+  const [blueAgents, blueStagingAgents] = this.getAgents(this.blueTeamCode);
+  const [redAgents, redStagingAgents] = this.getAgents(this.redTeamCode);
+  this.validateWalls(blueAgents, blueStagingAgents);
+  this.validateWalls(redAgents, redStagingAgents);
+};
+
+Match.prototype.checkConflict = function() {
+  const [blueAgents, blueStagingAgents] = this.getAgents(this.blueTeamCode);
+  const [redAgents, redStagingAgents] = this.getAgents(this.redTeamCode);
+  const currentAgents = blueAgents.concat(redAgents);
+
+  // merge 2 team agents to check conflict
+  const stagingAgents = blueStagingAgents
+    .concat(redStagingAgents)
+    .filter((en) =>
+      en.type == ActionType.MOVE && en.apply == ActionStatus.VALID,
+    );
+  // calculate current position
+  stagingAgents.forEach((agent) => {
+    const currentAgent = currentAgents.find((en) =>
+      en.agentID == agent.agentID,
+    );
+    agent.x = currentAgent.x + agent.dx;
+    agent.y = currentAgent.y + agent.dy;
+  });
+
+  this.validateConflict(stagingAgents);
+};
+
+
+Match.prototype.validateConflict = function(agents) {
+  for (let i = 0; i < agents.length; i++) {
+    const thisAgent = agents[i];
+    for (let j = 0; j < agents.length; j++) {
+      if (i == j) {
+        continue;
+      }
+      const thatAgent = agents[j];
+      if (thisAgent.x == thatAgent.x && thisAgent.y == thatAgent.y) {
+        thisAgent.apply = ActionStatus.CONFLICTED;
+      }
+    }
+  }
+};
+
+Match.prototype.validateWalls = function(current, staging) {
+  current.forEach((agent) => {
+    const stagingAgent = staging.find((en) => en.agentID == agent.agentID);
+
+    // No update for this agent
+    if (!stagingAgent) {
+      return;
+    }
+    // No disabled
+    if (stagingAgent.apply == ActionStatus.DISABLED) {
+      return;
+    }
+    // Not type moving
+    if (stagingAgent.type == ActionType.STAY) {
+      return;
+    }
+
+    const nextCoor = {
+      x: agent.x + stagingAgent.dx,
+      y: agent.y + stagingAgent.dy,
+    };
+    if (this.isWall(nextCoor)) {
+      stagingAgent.apply = ActionStatus.DISABLED;
+    }
+  });
+};
+
+/**
+ * Check if cell at this coordinate is wall
+ * @param {Coordinate} coordinate
+ * @return {Boolean}
+ */
+Match.prototype.isWall = function(coordinate) {
+  const walls = this.obstacles;
+  walls.find((en) => en.x == coordinate.x && en.y == coordinate.y);
+  if (walls) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 /**
